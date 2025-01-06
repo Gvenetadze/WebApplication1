@@ -4,9 +4,9 @@ namespace WebApplication1.Models.LibraryModels;
 
 public class LibraryUpdateModel
 {
-
+    [Required]
     [MaxLength(100)]
-    public string? Name { get; set; }
+    public required string Name { get; set; }
 
     [MaxLength(200)]
     public string? Address { get; set; }

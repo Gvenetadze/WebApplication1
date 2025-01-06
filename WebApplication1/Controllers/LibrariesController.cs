@@ -117,21 +117,21 @@ public class LibrariesController(LibraryDbContext context) : ControllerBase
             .Libraries
             .FirstOrDefault(x => x.Id == id) ?? throw new NotFoundException();
 
-        if (model.Name != null)
+        if (!string.IsNullOrEmpty(model.Name))
         {
             library.Name = model.Name;
         }
 
-        if (model.Address != null)
+        if (!string.IsNullOrEmpty(model.Address))
         {
             library.Address = model.Address;
         }
 
-        if (model.Email != null)
+        if (!string.IsNullOrEmpty(model.Email))
         {
             library.Email = model.Email;
         }
-
+        
         _context.SaveChanges();
 
         return new LibraryViewModel
@@ -141,6 +141,5 @@ public class LibrariesController(LibraryDbContext context) : ControllerBase
             Address = library.Address,
             Email = library.Email
         };
-
     }
 }

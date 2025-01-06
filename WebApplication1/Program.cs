@@ -16,9 +16,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseMiddleware<Print1Middleware>();
-app.UseMiddleware<Print2Middleware>();
-app.UseMiddleware<Print3Middleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
