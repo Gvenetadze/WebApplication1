@@ -1,145 +1,47 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.DbContexts;
-using WebApplication1.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models.LibraryModels;
-using WebApplication1.Utils.Exceptions;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class LibrariesController(LibraryDbContext context) : ControllerBase
+public class LibrariesController(ILibraryService libraryService) : ControllerBase
 {
-    private readonly LibraryDbContext _context = context;
+    private readonly ILibraryService _libraryService = libraryService;
 
     [HttpGet]
-    [Route("GetLibraries")]
     public IEnumerable<LibraryViewModel> GetLibraries()
     {
-        var libraries = _context
-            .Libraries
-            .AsNoTracking()
-            .Select(l => new LibraryViewModel
-            {
-                Id = l.Id,
-                Name = l.Name,
-                Address = l.Address,
-                Email = l.Email,
-            });
-        
+        var libraries = _libraryService.GetAll();
         return libraries;
     }
 
     [HttpGet]
-    [Route("GetLibraryById/{id:int}")]
+    [Route("{id:int}")]
     public LibraryViewModel GetLibraryById(int id)
-    {
-        var library = _context
-            .Libraries
-            .AsNoTracking()
-            .Select(l => new LibraryViewModel
-            {
-                Id = l.Id,
-                Name = l.Name,
-                Address = l.Address,
-                Email = l.Email,
-            })
-            .FirstOrDefault(l => l.Id == id);
-
-        return library is null ? throw new NotFoundException() : library;
+    {   
+        var library = _libraryService.GetById(id);
+        return library;
     }
 
     [HttpPost]
-    [Route("AddLibrary")]
-    public LibraryViewModel AddLibrary([FromBody] LibraryAddModel model)
+    public void AddLibrary([FromBody] LibraryAddModel model)
     {
-        var library = new Library
-        {
-            Name = model.Name,
-            Email = model.Email,
-            Address = model.Address
-        };
-
-        _context.Libraries.Add(library);
-        _context.SaveChanges();
-
-        return new LibraryViewModel
-        {
-            Id = library.Id,
-            Name = library.Name,
-            Address = library.Address,
-            Email = library.Email
-        };
+        _libraryService.Add(model);
     }
 
     [HttpPut]
-    [Route("UpdateLibrary/{id:int}")]
-    public LibraryViewModel UpdateLibrary([FromBody] LibraryUpdateModel model, [FromRoute] int id)
+    [Route("{id:int}")]
+    public void UpdateLibrary([FromBody] LibraryUpdateModel model, [FromRoute] int id)
     {
-        var library = _context
-            .Libraries
-            .FirstOrDefault(l => l.Id == id) ?? throw new NotFoundException();
-
-        library.Name = model.Name;
-        library.Email = model.Email;
-        library.Address = model.Address;
-
-        _context.SaveChanges();
-
-        return new LibraryViewModel
-        {
-            Id= library.Id,
-            Name = library.Name,
-            Address = library.Address,
-            Email = library.Email
-        };
+        _libraryService.Update(model, id);
     }
 
     [HttpDelete]
-    [Route("DeleteLibrary")]
-    public void DeleteLibrary(int id)
+    [Route("{id:int}")]
+    public void DeleteLibrary([FromRoute] int id)
     {
-        var library = _context
-            .Libraries
-            .FirstOrDefault(l => l.Id == id) ?? throw new NotFoundException();
-
-        _context.Libraries.Remove(library);
-        _context.SaveChanges();
-    }
-
-    [HttpPatch]
-    [Route("UpdateLibrary/{id:int}")]
-    public LibraryViewModel UpdateLibrary([FromRoute] int id, [FromBody] LibraryPatchModel model)
-    {
-        var library = _context
-            .Libraries
-            .FirstOrDefault(x => x.Id == id) ?? throw new NotFoundException();
-
-        if (!string.IsNullOrEmpty(model.Name))
-        {
-            library.Name = model.Name;
-        }
-
-        if (!string.IsNullOrEmpty(model.Address))
-        {
-            library.Address = model.Address;
-        }
-
-        if (!string.IsNullOrEmpty(model.Email))
-        {
-            library.Email = model.Email;
-        }
-        
-        _context.SaveChanges();
-
-        return new LibraryViewModel
-        {
-            Id = library.Id,
-            Name = library.Name,
-            Address = library.Address,
-            Email = library.Email
-        };
+        _libraryService.Delete(id);
     }
 }
