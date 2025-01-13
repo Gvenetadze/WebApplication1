@@ -2,7 +2,7 @@
 
 public class NotFoundException : Exception
 {
-    private const string ErrorMessage = "ეს მონაცემი არ მოიპოვება, სცადე თავიდან.";
+    private const string ErrorMessage = "The requested resource was not found. Try again.";
 
     public NotFoundException() : base(ErrorMessage)
     {
